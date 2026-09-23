@@ -208,23 +208,38 @@ drop policy if exists events_admin_delete on public.events;
 create policy events_admin_delete on public.events for delete using (public.is_admin());
 
 -- =====================================================================
--- Storage bucket for uploads (images + videos)
+-- API grants (newer projects don't expose public tables by default; RLS still applies)
 -- =====================================================================
-insert into storage.buckets (id, name, public) values ('media', 'media', true)
-on conflict (id) do update set public = true;
+grant usage on schema public to anon, authenticated;
+grant select on public.site_settings, public.pages, public.categories,
+                public.doctors, public.sections, public.items to anon, authenticated;
+grant insert on public.leads, public.events to anon, authenticated;
+grant select, insert, update, delete on all tables in schema public to authenticated;
+grant usage, select on all sequences in schema public to anon, authenticated;
 
-drop policy if exists media_admin_insert on storage.objects;
-create policy media_admin_insert on storage.objects for insert to authenticated
-  with check (bucket_id = 'media' and public.is_admin());
-drop policy if exists media_admin_update on storage.objects;
-create policy media_admin_update on storage.objects for update to authenticated
-  using (bucket_id = 'media' and public.is_admin());
-drop policy if exists media_admin_delete on storage.objects;
-create policy media_admin_delete on storage.objects for delete to authenticated
-  using (bucket_id = 'media' and public.is_admin());
-drop policy if exists media_admin_list on storage.objects;
-create policy media_admin_list on storage.objects for select to authenticated
-  using (bucket_id = 'media' and public.is_admin());
+-- =====================================================================
+-- Storage bucket for uploads (images + videos)
+-- Wrapped so a missing privilege on storage.* doesn't abort the whole script.
+-- =====================================================================
+do $$ begin
+  insert into storage.buckets (id, name, public) values ('media', 'media', true)
+  on conflict (id) do update set public = true;
+
+  drop policy if exists media_admin_insert on storage.objects;
+  create policy media_admin_insert on storage.objects for insert to authenticated
+    with check (bucket_id = 'media' and public.is_admin());
+  drop policy if exists media_admin_update on storage.objects;
+  create policy media_admin_update on storage.objects for update to authenticated
+    using (bucket_id = 'media' and public.is_admin());
+  drop policy if exists media_admin_delete on storage.objects;
+  create policy media_admin_delete on storage.objects for delete to authenticated
+    using (bucket_id = 'media' and public.is_admin());
+  drop policy if exists media_admin_list on storage.objects;
+  create policy media_admin_list on storage.objects for select to authenticated
+    using (bucket_id = 'media' and public.is_admin());
+exception when insufficient_privilege then
+  raise warning 'Skipped storage setup (insufficient privilege): create the "media" bucket + policies from the dashboard.';
+end $$;
 
 -- =====================================================================
 -- Dashboard stats (admin only). Days are counted in Cairo time.
