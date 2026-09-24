@@ -572,6 +572,8 @@ body.menu-open .sheet{opacity:1;pointer-events:auto;transform:none}
 [data-theme="dark"] .theme-t .sun{color:var(--ink3);transform:rotate(-90deg)}
 [data-theme="dark"] .theme-t .moon{color:#fff;transform:rotate(-15deg)}
 .theme-t:hover{border-color:color-mix(in srgb,var(--violet) 40%,transparent)}
-html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:background-color .4s ease,color .4s ease,border-color .4s ease,box-shadow .4s ease!important}
+@media (prefers-reduced-motion:no-preference){
+  html.theme-anim,html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:background-color .4s ease,color .4s ease,border-color .4s ease,box-shadow .4s ease!important}
+}
 .sheet .theme-row{display:flex;align-items:center;justify-content:space-between;margin-top:18px;font-weight:600;color:var(--ink2)}
 @media (max-width:720px){.hdr-cta{gap:8px}.hdr-cta .lang{min-width:44px;padding:0 10px}}
