@@ -10,6 +10,9 @@ import { Footer } from '@/components/site/Footer'
 import { Tracker } from '@/components/site/Tracker'
 import '../../site.css'
 
+// Light by default for everyone; dark only if the visitor picked it before.
+const THEME_SCRIPT = `try{if(localStorage.getItem('g2v-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}`
+
 export const revalidate = 300
 export const dynamicParams = false
 
@@ -46,13 +49,14 @@ export default async function SiteLayout({ children, params }: { children: React
   const brand = /^#[0-9a-f]{3,8}$/i.test(settings.brand_color) ? settings.brand_color : '#5428B3'
 
   return (
-    <html lang={locale} dir={dirOf(locale)}>
+    <html lang={locale} dir={dirOf(locale)} data-theme="light" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" />
-        <style>{`:root{--violet:${brand};--vtext:${brand}}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--vtext:#B89CFF}}`}</style>
+        <style>{`:root{--violet:${brand};--vtext:${brand}}:root[data-theme="dark"]{--vtext:#B89CFF}`}</style>
       </head>
       <body>
         <ChromeDefs />

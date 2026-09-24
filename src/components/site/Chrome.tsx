@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { tr, t } from '@/lib/i18n'
 import type { L, Locale, Settings } from '@/lib/types'
 import { ArrowIcon, ChatIcon, TrendIcon } from './Icons'
+import { ThemeToggle } from './ThemeToggle'
 
 export type NavLink = { href: string; label: L }
 
@@ -53,6 +54,7 @@ export function SiteHeader({ settings, nav, locale }: { settings: Settings; nav:
             {nav.map((n) => <Link key={n.href} href={n.href}>{tr(n.label, locale)}</Link>)}
           </nav>
           <div className="hdr-cta">
+            <ThemeToggle locale={locale} />
             <Link className="lang" href={switchHref(path, other)} hrefLang={other}>{d.lang}</Link>
             <a href={`/${locale}#contact`} className="btn primary small" data-track="cta" data-label="header">
               {d.bookCall}<span className="ic"><ArrowIcon size={16} /></span>
